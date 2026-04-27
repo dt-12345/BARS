@@ -13,4 +13,4 @@ bars help patch # prints help message for BARS patching
 TODO:
 - Compression support
 - UI
-  - By extension, minf editing becuase that is kinda painful to without a graphical interface
+  - By extension, minf editing because that is kinda painful to without a graphical interface
