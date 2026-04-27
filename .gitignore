@@ -1,0 +1,7 @@
+build/*
+.cache/*
+*.bars
+*.bwav
+*.wav
+*.zs
+notes.txt
