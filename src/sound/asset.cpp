@@ -4,7 +4,7 @@
 
 namespace sound {
 
-auto Asset::setSound(std::string_view name, Sound& sound) -> bool {
+auto Asset::setSound(std::string_view name, Sound& sound, bool keepMeta) -> bool {
     // do not call this function with prefetch sounds
     if (sound.isPrefetch()) {
         return false;
@@ -24,7 +24,9 @@ auto Asset::setSound(std::string_view name, Sound& sound) -> bool {
         sound.setPrefetchInfo(mSound);
     }
 
-    mMetadata.reset();
+    if (!keepMeta) {
+        mMetadata.reset();
+    }
     // TODO: what are the conditions that causes a sound to be streamed with no prefetch?
     mMetadata.setIsStreaming(mSound.isPrefetch());
     mMetadata.setHasSoundInArchive(true);

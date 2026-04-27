@@ -108,7 +108,8 @@ static auto PatcherMain(
     const std::string_view outputBwavPath,
     std::optional<std::uint32_t> sampleRate,
     std::optional<sound::Format> format,
-    std::optional<std::endian> endian) -> std::int32_t {
+    std::optional<std::endian> endian,
+    bool keepMeta) -> std::int32_t {
     auto sound = std::unique_ptr<sound::Sound>();
     if (soundPath.ends_with(".bwav")) {
         auto soundRes = decode::BwavReader::Read(soundPath);
@@ -160,13 +161,13 @@ static auto PatcherMain(
 
     const auto name = soundName.empty() || soundName == "-" ? std::filesystem::path(soundPath).stem() : soundName;
     if (const auto existing = archive->getAsset(soundName); existing != nullptr) {
-        if (!existing->setSound(name.string(), *sound)) {
+        if (!existing->setSound(name.string(), *sound, keepMeta)) {
             std::println(std::cerr, "Failed to replace {}", name.string());
             return 1;
         }
     } else {
         auto& asset = archive->addAsset();
-        if (!asset.setSound(name.string(), *sound)) {
+        if (!asset.setSound(name.string(), *sound, false)) {
             std::println(std::cerr, "Failed to add {}", name.string());
             return 1;
         }
@@ -243,6 +244,7 @@ auto main(int argc, const char** argv) -> int {
         auto sampleRate = std::optional<std::uint32_t>();
         auto endian = std::optional<std::endian>();
         auto sampleFormat = std::optional<sound::Format>();
+        auto keepMeta = true;
         while (optIndex < argc) {
             const auto arg = ParseInput(argc, argv, optIndex++);
             if (arg == "--out" || arg == "-o") {
@@ -278,9 +280,14 @@ auto main(int argc, const char** argv) -> int {
                 } else {
                     std::println(std::cerr, "[WARNING] Unknown sample format: {}", fmt);
                 }
+            } else if (arg == "--overwrite-meta" || arg == "-om") {
+                keepMeta = false;
             }
         }
-        return PatcherMain(barsPath, soundPath, soundName, outputBarsPath, outputBwavPath, std::move(sampleRate), std::move(sampleFormat), std::move(endian));
+        return PatcherMain(
+            barsPath, soundPath, soundName, outputBarsPath, outputBwavPath, 
+            std::move(sampleRate), std::move(sampleFormat), std::move(endian), keepMeta
+        );
     } else if (opt == "convert") {
         const auto inputPath = ParseInput(argc, argv, optIndex++);
         auto outputPath = std::format("{}.bwav", std::filesystem::path(inputPath).stem().string());
@@ -357,6 +364,7 @@ auto main(int argc, const char** argv) -> int {
                 "      Choices: big, little\n"
                 "    --format <sample_format>\n"
                 "      Choices: pcm, adpcm, opus\n"
+                "    --overwrite-meta\n"
             );
         } else if (cmd == "convert") {
             std::print(

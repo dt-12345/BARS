@@ -31,7 +31,7 @@ public:
     [[nodiscard]] auto getEndian() const -> std::endian { return mEndian; }
 
     // sets sound for this asset, recalculates metadata and sets stream info if prefetch required
-    auto setSound(std::string_view name, Sound& sound) -> bool;
+    auto setSound(std::string_view name, Sound& sound, bool keepMeta) -> bool;
 
     auto dumpMetadata() const -> std::string { return mMetadata.dumpMetadata(); }
 

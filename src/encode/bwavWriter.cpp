@@ -223,6 +223,7 @@ auto BwavWriter::WriteChannelPrefetch(const sound::Channel& channel, common::Bin
         case sound::Format::Opus:
             writer.write(channel.getOpusBlendSampleCount());
             writer.write(static_cast<std::uint32_t>(dataOffset + channel.getRawSampleData().size()));
+            writer.skip(0x18);
             break;
         default:
             return false;
