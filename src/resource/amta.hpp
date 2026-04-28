@@ -52,6 +52,11 @@ struct ResMarker {
     std::uint32_t duration;
 };
 
+struct ResAttribute {
+    std::uint32_t keyOffset;
+    std::uint32_t value;
+};
+
 struct __attribute__((packed)) ResAudioMetadata {
     std::uint32_t magic;
     std::uint16_t bom;
@@ -62,7 +67,7 @@ struct __attribute__((packed)) ResAudioMetadata {
     std::uint32_t markerOffset;
     std::uint32_t musicInfoOffset;
     std::uint32_t tagOffset;
-    std::uint32_t _20;
+    std::uint32_t attrOffset;
     std::uint32_t nameOffset;
     std::uint32_t hash;
     std::uint8_t metaFlags;

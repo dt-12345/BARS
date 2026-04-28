@@ -115,6 +115,13 @@ auto Metadata::dumpMetadata() const -> std::string {
         }
     }
 
+    if (mAttributes.size() > 0) {
+        out += "  Attributes:\n";
+        for (const auto& [attr, value] : mAttributes) {
+            out += std::format("    {} {}\n", attr, value);
+        }
+    }
+
     if (mMarkers.size() > 0) {
         out += "  Markers:\n";
         for (const auto& marker : mMarkers) {
@@ -128,7 +135,7 @@ auto Metadata::dumpMetadata() const -> std::string {
             out += "    Tempo and Meter:\n";
             for (const auto& tm : mMusicInfo->getTempoMeterTable()->entries) {
                 out += std::format(
-                    "    {}: {{ Tempo: {}, Time Signature: {}/{} }}\n",
+                    "      {}: {{ Tempo: {}, Time Signature: {}/{} }}\n",
                     tm.samplePos, tm.tempo, tm.timeSignature.upper, tm.timeSignature.lower
                 );
             }

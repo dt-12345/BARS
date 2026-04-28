@@ -171,6 +171,19 @@ auto AmtaWriter::Write(const sound::Metadata& meta, common::BinaryWriter& writer
     }
 
     writer.alignUp(4);
+    if (meta.getAttributeCount()) {
+        const auto offset = static_cast<std::uint32_t>(writer.tell() - base);
+        writer.writeAt(offset, base + offsetof(resource::ResAudioMetadata, attrOffset));
+
+        writer.write(meta.getAttributeCount());
+        for (const auto& [attr, value] : meta.getAttributes()) {
+            stringOffsets.emplace(writer.tell(), attr);
+            writer.skip(4);
+            writer.write(value);
+        }
+    }
+
+    writer.alignUp(4);
     auto unique = std::map<std::string, std::uint32_t>{};
     for (const auto& [_, str] : stringOffsets) {
         unique.emplace(str, 0);

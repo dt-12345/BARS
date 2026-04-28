@@ -130,7 +130,7 @@ auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Re
     const auto markerOffset = reader.read<std::uint32_t>();
     const auto musicInfoOffset = reader.read<std::uint32_t>();
     const auto tagOffset = reader.read<std::uint32_t>();
-    [[maybe_unused]] const auto offset0x20 = reader.read<std::uint32_t>();
+    const auto attrOffset = reader.read<std::uint32_t>();
     const auto nameOffsetOffset = reader.tell();
     const auto nameOffset = nameOffsetOffset + reader.read<std::uint32_t>();
     reader.skip(4); // hash
@@ -217,6 +217,24 @@ auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Re
             const auto startOffset = reader.tell();
             const auto offset = startOffset + reader.read<std::uint32_t>();
             meta.addTag(reader.readString(offset));
+        }
+    }
+
+    if (attrOffset) {
+        reader.seek(baseOffset + attrOffset);
+        if (!reader.checkSize(sizeof(std::uint32_t))) {
+            return BufferTooSmall;
+        }
+        const auto count = reader.read<std::uint32_t>();
+        if (!reader.checkSize(count * sizeof(resource::ResAttribute))) {
+            return BufferTooSmall;
+        }
+        for (const auto _ : std::views::iota(0u, count)) {
+            const auto startOffset = reader.tell();
+            const auto offset = startOffset + reader.read<std::uint32_t>();
+            const auto key = reader.readString(offset);
+            const auto value = reader.read<std::uint32_t>();
+            meta.addAttribute(key, value);
         }
     }
 
