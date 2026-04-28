@@ -118,7 +118,7 @@ auto Metadata::dumpMetadata() const -> std::string {
     if (mMarkers.size() > 0) {
         out += "  Markers:\n";
         for (const auto& marker : mMarkers) {
-            out += std::format("  {}: {{ ID: {}, Start Sample: {}, Duration: {} }}", marker.name, marker.id, marker.start, marker.duration);
+            out += std::format("    {}: {{ ID: {}, Start Sample: {}, Duration: {} }}\n", marker.name, marker.id, marker.start, marker.duration);
         }
     }
 
@@ -158,7 +158,7 @@ auto Metadata::dumpMetadata() const -> std::string {
             for (const auto& marker : *mMusicInfo->getRangeMarkerTable()) {
                 out += std::format("      {}:\n", marker.name);
                 for (const auto& [start, end] : std::views::zip(marker.starts.entries, marker.ends.entries)) {
-                    out += std::format("      - {{ Start: {}, End: {} }}", start.samplePos, end.samplePos);
+                    out += std::format("      - {{ Start: {}, End: {} }}\n", start.samplePos, end.samplePos);
                 }
             }
         }
