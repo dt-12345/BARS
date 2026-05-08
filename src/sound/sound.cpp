@@ -1,3 +1,4 @@
+#include "common/hash.hpp"
 #include "sound/sound.hpp"
 
 #include <atomic>
@@ -176,6 +177,15 @@ auto Sound::resampleAndConvert(std::endian endian, Format fmt, std::uint32_t sam
     }
 
     return false;
+}
+
+auto Sound::calcHash() const -> std::uint32_t {
+    auto ctx = common::CRC32Context{};
+    for (const auto& channel : mChannels) {
+        const auto& data = channel.getRawSampleData();
+        ctx.update(data.data(), data.size());
+    }
+    return ctx.get();
 }
 
 } // namespace sound

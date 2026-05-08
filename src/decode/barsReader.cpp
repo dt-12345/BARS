@@ -26,7 +26,7 @@ auto BarsReader::ReadAsset(common::BinaryReader& reader, sound::Asset& asset, co
 }
     
 auto BarsReader::Read(common::BinaryReader& reader, sound::Archive& archive) -> Result {
-    if (!reader.checkSize(sizeof(resource::ResAudioResource))) {
+    if (!reader.checkSize<resource::ResAudioResource>()) {
         return BufferTooSmall;
     }
 
@@ -52,7 +52,7 @@ auto BarsReader::Read(common::BinaryReader& reader, sound::Archive& archive) -> 
     const auto hashes = reader.readArray<std::uint32_t>(assetCount);
     const auto offsets = reader.readArray<resource::ResAssetOffset>(assetCount);
 
-    if (version == 0x102 && !reader.checkSize(sizeof(std::uint32_t))) {
+    if (version == 0x102 && !reader.checkSize<std::uint32_t>()) {
         return BufferTooSmall;
     }
 

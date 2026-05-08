@@ -9,7 +9,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-g3 -march=native)
+option(BARS_DEBUG "Debug" OFF)
+
+if (BARS_DEBUG)
+    add_compile_options(-g3)
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options(-fdiagnostics-color=always)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -26,6 +31,7 @@ add_subdirectory(lib/miniaudio/)
 
 add_subdirectory(lib/dsptool/)
 
+add_compile_options(-Wno-dev)
 add_subdirectory(cmake/soxr/)
 
 add_subdirectory(lib/mmh3/)
@@ -105,10 +111,14 @@ add_executable(bars
 if (MSVC)
     target_compile_options(bars PRIVATE /W4 /wd4244 /wd4127 /Zc:__cplusplus)
 else()
-    target_compile_options(bars PRIVATE -Wall -Wextra -fno-plt)
+    target_compile_options(bars PRIVATE -Wall -Wextra -Werror -fno-plt)
 endif()
 
-if (MINGW AND CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+if (BARS_DEBUG)
+    target_compile_definitions(bars PRIVATE BARS_DEBUG)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
   target_link_libraries(bars PRIVATE stdc++exp)
 endif()
 

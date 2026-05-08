@@ -1,5 +1,4 @@
 #include "common/align.hpp"
-#include "common/hash.hpp"
 #include "common/writer.hpp"
 #include "encode/bwavWriter.hpp"
 #include "decode/adpcmDecoder.hpp"
@@ -58,15 +57,6 @@ static constexpr auto ConvertAssetType(sound::AssetType type) -> resource::Asset
     }
 }
 
-static auto CalcDataHash(const sound::Sound& sound) -> std::uint32_t {
-    auto ctx = common::CRC32Context{};
-    for (const auto& channel : sound.getChannels()) {
-        const auto& data = channel.getRawSampleData();
-        ctx.update(data.data(), data.size());
-    }
-    return ctx.get();
-}
-
 static auto CalcChannelInfoSize(const sound::Sound& sound) -> size_t {
     return std::transform_reduce(
         sound.getChannels().begin(), sound.getChannels().end(), sound.getChannelCount() * sizeof(resource::ResChannelInfo), std::plus<>(),
@@ -77,7 +67,7 @@ static auto CalcChannelInfoSize(const sound::Sound& sound) -> size_t {
 }
 
 static constexpr auto AlignUp(size_t value) -> size_t {
-    return common::AlignUp(value, 0x40ull);
+    return common::AlignUp(value, static_cast<size_t>(0x40));
 }
 
 auto BwavWriter::WriteChannel(const sound::Channel& channel, common::BinaryWriter& writer, size_t& dataOffset, sound::StreamInfo* streamInfo) -> bool {
@@ -144,7 +134,7 @@ auto BwavWriter::WriteChannel(const sound::Channel& channel, common::BinaryWrite
 }
 
 auto BwavWriter::Write(const sound::Sound& sound, common::BinaryWriter& writer, sound::StreamInfo* streamInfo) -> bool {
-    const auto dataHash = CalcDataHash(sound);
+    const auto dataHash = sound.calcHash();
     if (streamInfo != nullptr) {
         streamInfo->dataHash = dataHash;
     }

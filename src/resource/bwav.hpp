@@ -55,6 +55,7 @@ struct ResChannelInfo {
     std::uint16_t loopSeekPointIndex;
     std::int32_t loopEnd;
 };
+static_assert(sizeof(ResChannelInfo) == 0x40);
 
 struct ResBinaryWaveform {
     std::uint32_t magic;

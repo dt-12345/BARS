@@ -28,7 +28,7 @@ static constexpr auto ConvertAttenuationChannel(resource::AttenuationChannel ch)
 }
 
 auto AmtaReader::ReadTrack(common::BinaryReader& reader, sound::Track& track) -> Result {
-    if (!reader.checkSize(sizeof(std::uint8_t))) {
+    if (!reader.checkSize<std::uint8_t>()) {
         return BufferTooSmall;
     }
 
@@ -53,7 +53,7 @@ auto AmtaReader::ReadTrack(common::BinaryReader& reader, sound::Track& track) ->
 }
 
 auto AmtaReader::ReadOptData(common::BinaryReader& reader, sound::OptionalMetadata& opt) -> Result {
-    if (!reader.checkSize(sizeof(resource::OptFlags))) {
+    if (!reader.checkSize<resource::OptFlags>()) {
         return BufferTooSmall;
     }
 
@@ -105,7 +105,7 @@ auto AmtaReader::ReadOptData(common::BinaryReader& reader, sound::OptionalMetada
 }
 
 auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Result {
-    if (!reader.checkSize(sizeof(resource::ResAudioMetadata))) {
+    if (!reader.checkSize<resource::ResAudioMetadata>()) {
         return BufferTooSmall;
     }
 
@@ -175,7 +175,7 @@ auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Re
 
     if (markerOffset) {
         reader.seek(baseOffset + markerOffset);
-        if (!reader.checkSize(sizeof(std::uint32_t))) {
+        if (!reader.checkSize<std::uint32_t>()) {
             return BufferTooSmall;
         }
         const auto count = reader.read<std::uint32_t>();
@@ -206,7 +206,7 @@ auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Re
 
     if (tagOffset) {
         reader.seek(baseOffset + tagOffset);
-        if (!reader.checkSize(sizeof(std::uint32_t))) {
+        if (!reader.checkSize<std::uint32_t>()) {
             return BufferTooSmall;
         }
         const auto count = reader.read<std::uint32_t>();
@@ -222,7 +222,7 @@ auto AmtaReader::Read(common::BinaryReader& reader, sound::Metadata& meta) -> Re
 
     if (attrOffset) {
         reader.seek(baseOffset + attrOffset);
-        if (!reader.checkSize(sizeof(std::uint32_t))) {
+        if (!reader.checkSize<std::uint32_t>()) {
             return BufferTooSmall;
         }
         const auto count = reader.read<std::uint32_t>();

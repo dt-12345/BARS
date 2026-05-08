@@ -43,6 +43,8 @@ public:
     
     auto reset() -> void { mChannels.clear(); mAssetType = AssetType::Invalid; mEndian = std::endian::native; }
 
+    auto calcHash() const -> std::uint32_t;
+
 private:
     std::vector<Channel> mChannels;
     AssetType mAssetType;

@@ -308,7 +308,12 @@ public:
     }
 
     [[nodiscard]] auto checkSize(size_t size) const -> bool {
-        return std::max(mData.size() - mOffset, 0ull) >= size;
+        return std::max(mData.size() - mOffset, static_cast<size_t>(0)) >= size;
+    }
+
+    template <typename T>
+    [[nodiscard]] auto checkSize() const -> bool {
+        return checkSize(sizeof(T));
     }
 
     auto alignUp(size_t align) -> void {

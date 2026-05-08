@@ -389,6 +389,53 @@ auto main(int argc, const char** argv) -> int {
         } else {
             std::println("Unknown command: {}\nPlease see usage for commands", cmd);
         }
+#ifdef BARS_DEBUG
+    } else if (opt == "parse") {
+        const auto inputPath = ParseInput(argc, argv, optIndex++);
+        if (inputPath.ends_with(".bars")) {
+            const auto res = decode::BarsReader::Read(inputPath);
+            if (!res) {
+                std::println(std::cerr, "{}", decode::ToString(res.error()));
+                return 1;
+            }
+        } else if (inputPath.ends_with(".bwav")) {
+            const auto res = decode::BwavReader::Read(inputPath);
+            if (!res) {
+                std::println(std::cerr, "{}", decode::ToString(res.error()));
+                return 1;
+            }
+        } else if (inputPath.ends_with(".wav")) {
+            const auto res = decode::WavReader::Read(inputPath);
+            if (!res) {
+                std::println(std::cerr, "{}", decode::ToString(res.error()));
+                return 1;
+            }
+        }
+    } else if (opt == "rt") {
+        const auto inputPath = ParseInput(argc, argv, optIndex++);
+        const auto outputPath = ParseInput(argc, argv, optIndex++);
+        if (inputPath.ends_with(".bars")) {
+            const auto res = decode::BarsReader::Read(inputPath);
+            if (!res) {
+                std::println(std::cerr, "{}", decode::ToString(res.error()));
+                return 1;
+            }
+            if (!encode::BarsWriter::Write(*res.value(), outputPath)) {
+                std::println(std::cerr, "Failed to serialize file");
+                return 1;
+            }
+        } else if (inputPath.ends_with(".bwav")) {
+            const auto res = decode::BwavReader::Read(inputPath);
+            if (!res) {
+                std::println(std::cerr, "{}", decode::ToString(res.error()));
+                return 1;
+            }
+            if (!encode::BwavWriter::Write(*res.value(), outputPath)) {
+                std::println(std::cerr, "Failed to serialize file");
+                return 1;
+            }
+        }
+#endif
     } else {
         std::print(
             "Usage:\n"

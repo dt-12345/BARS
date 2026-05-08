@@ -14,6 +14,11 @@ struct ResTempoMeter {
     ResTimeSignature timeSignature;
 };
 
+struct ResChordOffset {
+    std::uint32_t samplePos;
+    std::uint32_t offset;
+};
+
 struct ResBeat {
     std::uint32_t samplePos;
     std::uint32_t beatNum;
@@ -56,13 +61,13 @@ struct ResMusicInfo {
     std::uint32_t sampleCount;
     ResTempoMeter defaultTempoMeter;
     std::uint32_t tempoOffset;
-    std::uint32_t _30;
+    std::uint32_t chordOffset;
     std::uint32_t _34;
     std::uint32_t beatOffset;
     std::uint32_t measureOffset;
     std::uint32_t pointMarkerOffset;
     std::uint32_t rangedMarkerOffset;
-    std::uint32_t _48;
+    std::uint32_t sequenceOffset;
 };
 
 } // namespace resource

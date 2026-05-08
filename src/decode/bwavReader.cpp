@@ -67,7 +67,7 @@ static auto GetOpusDataByteSize(common::BinaryReader& reader) -> std::uint32_t {
         return OPUS_SIZE_DETERMINATION_ERROR;
     }
     reader.seek(origOffset + dataChunkOffset);
-    if (!reader.checkSize(sizeof(resource::OpusChunk))) {
+    if (!reader.checkSize<resource::OpusChunk>()) {
         return OPUS_SIZE_DETERMINATION_ERROR;
     }
     const auto dataChunkType = reader.read<resource::ChunkType>();
@@ -80,7 +80,7 @@ static auto GetOpusDataByteSize(common::BinaryReader& reader) -> std::uint32_t {
 }
 
 auto BwavReader::ReadChannel(common::BinaryReader& reader, sound::Channel& channel, size_t baseOffset, bool isPrefetch, sound::StreamInfo* streamInfo) -> Result {
-    if (!reader.checkSize(sizeof(resource::ResChannelInfo))) {
+    if (!reader.checkSize<resource::ResChannelInfo>()) {
         return BufferTooSmall;
     }
 
@@ -197,7 +197,7 @@ auto BwavReader::ReadChannel(common::BinaryReader& reader, sound::Channel& chann
 }
 
 auto BwavReader::Read(common::BinaryReader& reader, sound::Sound& sound, sound::StreamInfo* streamInfo) -> Result {
-    if (!reader.checkSize(sizeof(resource::ResBinaryWaveform))) {
+    if (!reader.checkSize<resource::ResBinaryWaveform>()) {
         return BufferTooSmall;
     }
 

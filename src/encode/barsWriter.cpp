@@ -8,13 +8,13 @@
 #include <fstream>
 #include <map>
 #include <ranges>
+#include <unordered_map>
 
 namespace encode {
 
 auto BarsWriter::Write(const sound::Archive& archive, common::BinaryWriter& writer) -> bool {
     writer.setEndian(archive.getEndian());
     const auto base = writer.tell();
-
 
     auto sortedAssets = std::map<std::uint32_t, std::reference_wrapper<const sound::Asset>>{};
     for (const auto& asset : archive.getAssets()) {
@@ -55,7 +55,16 @@ auto BarsWriter::Write(const sound::Archive& archive, common::BinaryWriter& writ
         writer.setEndian(archive.getEndian());
     }
 
+    auto seen = std::unordered_map<std::uint32_t, std::uint32_t>{};
     for (const auto& [index, asset] : sortedAssets | std::views::values | std::views::enumerate) {
+        const auto hash = asset.get().getMetadata().getIsStreaming() ? asset.get().getStreamInfo().dataHash : asset.get().getSound().calcHash();
+        if (const auto it = seen.find(hash); it != seen.end()) {
+            // TODO: this probably isn't entirely safe since there's a chance of a collision (though with only a handful of assets it's reasonably small)
+            const auto atOffset = baseArrayOffset + index * sizeof(resource::ResAssetOffset) + offsetof(resource::ResAssetOffset, dataOffset);
+            writer.writeAt(it->second, atOffset);
+            continue;
+        }
+
         writer.alignUp(0x40);
         const auto offset = static_cast<std::uint32_t>(writer.tell() - base);
         const auto atOffset = baseArrayOffset + index * sizeof(resource::ResAssetOffset) + offsetof(resource::ResAssetOffset, dataOffset);
@@ -71,6 +80,7 @@ auto BarsWriter::Write(const sound::Archive& archive, common::BinaryWriter& writ
             }
         }
         writer.setEndian(archive.getEndian());
+        seen.emplace(hash, offset);
     }
 
     const auto size = static_cast<std::uint32_t>(writer.tell() - base);

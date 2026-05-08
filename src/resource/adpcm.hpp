@@ -24,8 +24,8 @@ struct AdpcmParameter {
     std::int16_t coefficients[8][2];
 
     auto byteswap() -> void {
-        for (size_t i = 0; i < 8; ++i) {
-            for (size_t j = 0; j < 2; ++j) {
+        for (std::size_t i = 0; i < 8; ++i) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 coefficients[i][j] = std::byteswap(coefficients[i][j]);
             }
         }

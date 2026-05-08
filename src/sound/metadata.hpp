@@ -60,6 +60,11 @@ struct Marker {
     std::string name;
 };
 
+struct Attribute {
+    std::string name;
+    std::uint32_t value; // can be float, bool, etc.
+};
+
 class Metadata {
 public:
     Metadata() = default;
@@ -104,10 +109,10 @@ public:
     [[nodiscard]] auto getTags() -> std::vector<std::string>& { return mTags; }
     [[nodiscard]] auto getTags() const -> const std::vector<std::string>& { return mTags; }
 
-    auto addAttribute(std::string_view key, std::uint32_t value) -> void { mAttributes.emplace(key, value); }
+    auto addAttribute(std::string_view key, std::uint32_t value) -> void { mAttributes.emplace_back(std::string(key), value); }
     [[nodiscard]] auto getAttributeCount() const -> std::uint32_t { return mAttributes.size(); }
-    [[nodiscard]] auto getAttributes() -> std::map<std::string, std::uint32_t>& { return mAttributes; }
-    [[nodiscard]] auto getAttributes() const -> const std::map<std::string, std::uint32_t>& { return mAttributes; }
+    [[nodiscard]] auto getAttributes() -> std::vector<Attribute>& { return mAttributes; }
+    [[nodiscard]] auto getAttributes() const -> const std::vector<Attribute>& { return mAttributes; }
 
     template <typename... Args>
     auto initMusicInfo(Args&&... args) -> void { mMusicInfo = std::make_optional<MusicInfo>(std::forward<Args>(args)...); }
@@ -131,7 +136,7 @@ private:
     std::optional<MusicInfo> mMusicInfo;
     std::vector<Marker> mMarkers;
     std::vector<std::string> mTags;
-    std::map<std::string, std::uint32_t> mAttributes;
+    std::vector<Attribute> mAttributes;
     bool mIsStreaming;
     bool mHasSoundInArchive; // has non-empty BWAV file in archive
     bool mIsLoop;

@@ -17,8 +17,12 @@ private:
     static auto WriteRelativeOffset(common::BinaryWriter& writer, std::uint32_t offsetValue, std::uint32_t offsetBase, bool updatePos = false) -> void;
     static auto WriteTempoMeter(const sound::TempoMeter& tempoMeter, common::BinaryWriter& writer) -> bool;
     static auto WriteBeat(const sound::Beat& beat, common::BinaryWriter& writer) -> bool;
+    static auto WriteChord(const sound::Chord& chord, common::BinaryWriter& writer) -> bool;
     static auto WritePointMarker(const sound::PointMarker& marker, common::BinaryWriter& writer, std::map<std::uint32_t, std::string>& strings) -> bool;
     static auto WriteRangeMarker(const sound::RangeMarker& marker, common::BinaryWriter& writer, std::map<std::uint32_t, std::string>& strings) -> bool;
+    static auto WriteS3SequenceTable(const sound::thunder::SequenceTable& table, common::BinaryWriter& writer) -> bool;
+    static auto WriteACNHSequenceTable(const sound::park::GenericMusic& table, common::BinaryWriter& writer) -> bool;
+    static auto WriteACNHDJSequenceTable(const sound::park::DJMusic& table, common::BinaryWriter& writer) -> bool;
 };
 
 } // namespace encode
