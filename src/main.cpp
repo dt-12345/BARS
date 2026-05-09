@@ -109,7 +109,8 @@ static auto PatcherMain(
     std::optional<std::uint32_t> sampleRate,
     std::optional<sound::Format> format,
     std::optional<std::endian> endian,
-    bool keepMeta) -> std::int32_t {
+    bool keepMeta
+) -> std::int32_t {
     auto sound = std::unique_ptr<sound::Sound>();
     if (soundPath.ends_with(".bwav")) {
         auto soundRes = decode::BwavReader::Read(soundPath);
@@ -181,7 +182,8 @@ static auto ConverterMain(
     const std::string_view outputPath,
     std::optional<std::uint32_t> sampleRate,
     std::optional<sound::Format> format,
-    std::optional<std::endian> endian) -> std::int32_t {
+    std::optional<std::endian> endian
+) -> std::int32_t {
     auto soundRes = decode::WavReader::Read(inputPath);
     if (!soundRes) {
         std::println(std::cerr, "Failed to parse WAV ({}): {}", inputPath, static_cast<std::uint32_t>(soundRes.error()));
