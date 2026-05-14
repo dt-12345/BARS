@@ -32,6 +32,8 @@ public:
     auto setEndian(std::endian endian) -> void { mEndian = endian; }
     [[nodiscard]] auto getEndian() const -> std::endian { return mEndian; }
 
+    auto setLoopPoint(std::uint32_t loopPoint) -> void { for (auto& channel : mChannels) { channel.setLoopPoint(loopPoint); } }
+
     auto convert(Format fmt) -> bool;
     auto resample(std::uint32_t sampleRate) -> bool;
     auto setSampleCount(std::uint32_t sampleCount) -> bool;

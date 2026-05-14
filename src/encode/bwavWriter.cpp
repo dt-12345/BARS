@@ -59,7 +59,10 @@ static constexpr auto ConvertAssetType(sound::AssetType type) -> resource::Asset
 
 static auto CalcChannelInfoSize(const sound::Sound& sound) -> size_t {
     return std::transform_reduce(
-        sound.getChannels().begin(), sound.getChannels().end(), sound.getChannelCount() * sizeof(resource::ResChannelInfo), std::plus<>(),
+        sound.getChannels().begin(),
+        sound.getChannels().end(), 
+        sizeof(resource::ResBinaryWaveform) + sound.getChannelCount() * sizeof(resource::ResChannelInfo),
+        std::plus<>(),
         [](const sound::Channel& channel) -> size_t {
             return sizeof(resource::ResSeekPoint) * channel.getSeekPointCount();
         }

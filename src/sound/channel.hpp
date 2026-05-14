@@ -33,6 +33,7 @@ public:
     // takes ownership of seekPoints data
     auto setLoopInfo(std::vector<std::uint32_t>& seekPoints, std::uint16_t loopSeekPointIndex, std::int32_t loopEnd) -> void;
     auto setLoopEnd(std::int32_t loopEnd) -> void { mLoopEnd = loopEnd; }
+    auto setLoopPoint(std::uint32_t loopPoint) -> void;
     // takes ownership of samples data
     auto setOpusBlendSamples(std::vector<std::int16_t>& samples) -> void { mOpusBlendSamples.swap(samples); }
     auto setAdpcmParameter(const resource::AdpcmParameter& param) -> void { mAdpcmParameter = param; }

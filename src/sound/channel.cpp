@@ -208,4 +208,23 @@ auto Channel::requiresStreaming() const -> bool {
         || (mSampleFormat == Format::PcmInt16 && mSampleCount > 0x2000 / sizeof(std::int16_t));
 }
 
+auto Channel::setLoopPoint(std::uint32_t loopPoint) -> void {
+    if (mSeekPoints.empty()) {
+        mSeekPoints.emplace_back(mLoopEnd != -1 ? mLoopEnd : mSampleCount);
+    }
+    
+    if (mSeekPoints.size() == 1) {
+        mSeekPoints.emplace_back(loopPoint);
+        mLoopSeekPointIndex = 1;
+    } else {
+        mSeekPoints.erase(mSeekPoints.begin() + 1);
+        mSeekPoints.emplace_back(loopPoint);
+        mLoopSeekPointIndex = 1;
+    }
+
+    if (mLoopEnd == -1) {
+        mLoopEnd = mSampleCount;
+    }
+}
+
 } // namespace sound

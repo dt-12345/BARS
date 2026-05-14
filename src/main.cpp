@@ -109,6 +109,7 @@ static auto PatcherMain(
     std::optional<std::uint32_t> sampleRate,
     std::optional<sound::Format> format,
     std::optional<std::endian> endian,
+    std::optional<std::uint32_t> loopPoint,
     bool keepMeta
 ) -> std::int32_t {
     auto sound = std::unique_ptr<sound::Sound>();
@@ -128,12 +129,15 @@ static auto PatcherMain(
         sound = std::move(*soundRes);
     }
 
+    if (loopPoint) {
+        sound->setLoopPoint(*loopPoint);
+    }
     if (sampleRate || format || endian) {
         std::println("Processing {}...", soundPath);
         if (!sound->resampleAndConvert(
-            endian ? *endian : sound->getEndian(),
-            format ? *format : sound->getSampleFormat(),
-            sampleRate ? *sampleRate : sound->getSampleRate()
+            endian.value_or(sound->getEndian()),
+            format.value_or(sound->getSampleFormat()),
+            sampleRate.value_or(sound->getSampleRate())
         )) {
             std::println(std::cerr, "Failed to resample and convert {}", soundPath);
             return 1;
@@ -161,16 +165,20 @@ static auto PatcherMain(
     }
 
     const auto name = soundName.empty() || soundName == "-" ? std::filesystem::path(soundPath).stem() : soundName;
-    if (const auto existing = archive->getAsset(soundName); existing != nullptr) {
+    if (const auto existing = archive->getAsset(name.string()); existing != nullptr) {
         if (!existing->setSound(name.string(), *sound, keepMeta)) {
             std::println(std::cerr, "Failed to replace {}", name.string());
             return 1;
+        } else {
+            std::println("Replaced {}", name.string());
         }
     } else {
         auto& asset = archive->addAsset();
         if (!asset.setSound(name.string(), *sound, false)) {
             std::println(std::cerr, "Failed to add {}", name.string());
             return 1;
+        } else {
+            std::println("Added {}", name.string());
         }
     }
 
@@ -182,7 +190,8 @@ static auto ConverterMain(
     const std::string_view outputPath,
     std::optional<std::uint32_t> sampleRate,
     std::optional<sound::Format> format,
-    std::optional<std::endian> endian
+    std::optional<std::endian> endian,
+    std::optional<std::uint32_t> loopPoint
 ) -> std::int32_t {
     auto soundRes = decode::WavReader::Read(inputPath);
     if (!soundRes) {
@@ -191,12 +200,15 @@ static auto ConverterMain(
     }
 
     auto sound = std::move(*soundRes);
+    if (loopPoint) {
+        sound->setLoopPoint(*loopPoint);
+    }
     if (sampleRate || format || endian) {
         std::println("Processing {}...", inputPath);
         if (!sound->resampleAndConvert(
-            endian ? *endian : sound->getEndian(),
-            format ? *format : sound->getSampleFormat(),
-            sampleRate ? *sampleRate : sound->getSampleRate()
+            endian.value_or(sound->getEndian()),
+            format.value_or(sound->getSampleFormat()),
+            sampleRate.value_or(sound->getSampleRate())
         )) {
             std::println(std::cerr, "Failed to resample and convert {}", inputPath);
             return 1;
@@ -246,6 +258,7 @@ auto main(int argc, const char** argv) -> int {
         auto sampleRate = std::optional<std::uint32_t>();
         auto endian = std::optional<std::endian>();
         auto sampleFormat = std::optional<sound::Format>();
+        auto loopPoint = std::optional<std::uint32_t>();
         auto keepMeta = true;
         while (optIndex < argc) {
             const auto arg = ParseInput(argc, argv, optIndex++);
@@ -282,13 +295,16 @@ auto main(int argc, const char** argv) -> int {
                 } else {
                     std::println(std::cerr, "[WARNING] Unknown sample format: {}", fmt);
                 }
+            } else if (arg == "--loop-point" || arg == "-lp") {
+                const auto point = ParseInput(argc, argv, optIndex++);
+                loopPoint = std::atoi(point.c_str());
             } else if (arg == "--overwrite-meta" || arg == "-om") {
                 keepMeta = false;
             }
         }
         return PatcherMain(
             barsPath, soundPath, soundName, outputBarsPath, outputBwavPath, 
-            std::move(sampleRate), std::move(sampleFormat), std::move(endian), keepMeta
+            std::move(sampleRate), std::move(sampleFormat), std::move(endian), std::move(loopPoint), keepMeta
         );
     } else if (opt == "convert") {
         const auto inputPath = ParseInput(argc, argv, optIndex++);
@@ -296,6 +312,7 @@ auto main(int argc, const char** argv) -> int {
         auto sampleRate = std::optional<std::uint32_t>();
         auto endian = std::optional<std::endian>();
         auto sampleFormat = std::optional<sound::Format>();
+        auto loopPoint = std::optional<std::uint32_t>();
         while (optIndex < argc) {
             const auto arg = ParseInput(argc, argv, optIndex++);
             if (arg == "--out" || arg == "-o") {
@@ -327,9 +344,12 @@ auto main(int argc, const char** argv) -> int {
                 } else {
                     std::println(std::cerr, "[WARNING] Unknown sample format: {}", fmt);
                 }
+            } else if (arg == "--loop-point" || arg == "-lp") {
+                const auto point = ParseInput(argc, argv, optIndex++);
+                loopPoint = std::atoi(point.c_str());
             }
         }
-        return ConverterMain(inputPath, outputPath, std::move(sampleRate), std::move(sampleFormat), std::move(endian));
+        return ConverterMain(inputPath, outputPath, std::move(sampleRate), std::move(sampleFormat), std::move(endian), std::move(loopPoint));
     } else if (opt == "dump") {
         const auto inputPath = ParseInput(argc, argv, optIndex++);
         const auto assetName = ParseInput(argc, argv, optIndex++);
