@@ -31,7 +31,7 @@ auto MinfReader::ReadChord(common::BinaryReader& reader, sound::Chord& chord) ->
     }
 
     const auto count = reader.read<std::uint32_t>();
-    if (!reader.checkSize(common::AlignUp(sizeof(sound::Note) * count, 4ull))) {
+    if (!reader.checkSize(common::AlignUp(sizeof(sound::Note) * count, std::size_t(4)))) {
         return BufferTooSmall;
     }
 
